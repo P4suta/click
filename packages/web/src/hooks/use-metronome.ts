@@ -1,4 +1,4 @@
-import type { BeatEvent, TempoState } from "@click/core";
+import { type BeatEvent, PhaseTracker, type TempoState } from "@click/core";
 import { createEffect, createSignal, onCleanup } from "solid-js";
 import { type MetronomeParams, WebAudioPort } from "../audio/web-audio-port";
 import type { AppStore } from "../state/app-store";
@@ -12,9 +12,10 @@ export interface UseMetronomeApi {
   readonly toggle: () => Promise<void>;
   /**
    * Tap-tempo phase alignment. Updates the BPM state and either re-anchors
-   * an in-flight scheduler to the user's tap rhythm or, when stopped and the
-   * tap count crosses the count-in threshold (4), auto-starts playback
-   * aligned to the tapped phase.
+   * an in-flight scheduler toward the user's tap rhythm (using EMA-based
+   * soft correction via PhaseTracker) or, when stopped and the tap count
+   * crosses the count-in threshold (4), auto-starts playback aligned to the
+   * tapped phase.
    */
   readonly syncToTap: (bpm: number, tapTimeMs: number, tapCount: number) => Promise<void>;
 }
@@ -33,9 +34,18 @@ const paramsFromState = (s: TempoState): MetronomeParams => ({
  *  stopped. Four matches the musical "1-2-3-4" count-in convention. */
 const COUNT_IN_THRESHOLD = 4;
 
+/** EMA coefficient for tap-tempo phase soft correction. 0.3 corrects 30% of
+ *  the phase error per tap, converging in ~10 taps. Lower = smoother but
+ *  slower; higher = snappier but more jarring. */
+const PHASE_ALPHA = 0.3;
+
 export function useMetronome(store: AppStore): UseMetronomeApi {
   const port = new WebAudioPort();
   const [currentBeat, setCurrentBeat] = createSignal<BeatEvent | null>(null);
+  // Owns the soft-correction grid across consecutive taps. Reset whenever
+  // TapTempo's rolling window resets (detected by tapCount going down).
+  const phaseTracker = new PhaseTracker(PHASE_ALPHA);
+  let lastTapCount = 0;
 
   port.setOnBeat((event) => setCurrentBeat(event));
 
@@ -64,14 +74,15 @@ export function useMetronome(store: AppStore): UseMetronomeApi {
     // 1. Update UI state so BpmDisplay tracks the tapped tempo.
     store.dispatch({ type: "SET_BPM", bpm });
 
-    // 2. Compute the first FUTURE beat anchor: lastTap + interval, advanced
-    //    forward by interval steps if the result happens to land in the past
-    //    (defensive — usually unnecessary at human tap latency).
-    const intervalSec = 60 / bpm;
-    const tapTimeSec = tapTimeMs / 1000;
-    let anchorTime = tapTimeSec + intervalSec;
-    const nowSec = performance.now() / 1000;
-    while (anchorTime < nowSec) anchorTime += intervalSec;
+    // 2. If TapTempo's rolling window just reset (gap > maxGapMs), tapCount
+    //    drops back to 2. Mirror that on our phase tracker so the new session
+    //    starts fresh instead of soft-correcting from a stale grid.
+    if (tapCount < lastTapCount) phaseTracker.reset();
+    lastTapCount = tapCount;
+
+    // 3. Feed the tap into the EMA-based PhaseTracker. The returned anchor is
+    //    the next beat time, soft-corrected toward the user's tap rhythm.
+    const anchorTime = phaseTracker.observe(tapTimeMs / 1000, 60 / bpm, performance.now() / 1000);
 
     // The reduce action above clamped bpm into [MIN_BPM, MAX_BPM]; pull the
     // post-clamp state so the params we hand to the port are consistent.
