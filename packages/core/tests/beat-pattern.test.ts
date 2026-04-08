@@ -186,19 +186,18 @@ describe("generateBeatPattern — defensive validation", () => {
 });
 
 describe("generateBeatPattern — edge handling", () => {
-  it.each<Subdivision>([1, 2, 3, 4])(
-    "subdivision %i produces an immutable beats array",
-    (subdivision) => {
-      const pattern = generateBeatPattern({
-        bpm: 90,
-        timeSignature: FOUR_FOUR,
-        accentPattern: [true, false, false, false],
-        subdivision,
-      });
-      expect(Object.isFrozen(pattern)).toBe(true);
-      expect(Object.isFrozen(pattern.beats)).toBe(true);
-    },
-  );
+  it.each<Subdivision>([
+    1, 2, 3, 4,
+  ])("subdivision %i produces an immutable beats array", (subdivision) => {
+    const pattern = generateBeatPattern({
+      bpm: 90,
+      timeSignature: FOUR_FOUR,
+      accentPattern: [true, false, false, false],
+      subdivision,
+    });
+    expect(Object.isFrozen(pattern)).toBe(true);
+    expect(Object.isFrozen(pattern.beats)).toBe(true);
+  });
 
   it("if accentPattern is shorter than numerator, missing beats are unaccented", () => {
     const pattern = generateBeatPattern({

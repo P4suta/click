@@ -81,15 +81,17 @@ describe("playClick", () => {
     expect(osc.start).not.toHaveBeenCalled();
   });
 
-  it.each(["click", "beep", "wood", "cowbell"] as const)(
-    "renders the %s voice without throwing",
-    (sound) => {
-      const { ctx } = makeContext();
-      expect(() =>
-        playClick({ context: ctx, destination: ctx, time: 0, accent: false, sound, volume: 0.5 }),
-      ).not.toThrow();
-    },
-  );
+  it.each([
+    "click",
+    "beep",
+    "wood",
+    "cowbell",
+  ] as const)("renders the %s voice without throwing", (sound) => {
+    const { ctx } = makeContext();
+    expect(() =>
+      playClick({ context: ctx, destination: ctx, time: 0, accent: false, sound, volume: 0.5 }),
+    ).not.toThrow();
+  });
 });
 
 // ----------------------------------------------------------------------------

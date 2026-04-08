@@ -1,13 +1,13 @@
 import {
-  type TempoAction,
-  type TempoState,
   ensures,
   initialState,
   reduce,
   requires,
+  type TempoAction,
+  type TempoState,
 } from "@click/core";
 import { createSignal } from "solid-js";
-import { type Persisted, loadPersisted, savePersisted } from "./persistence";
+import { loadPersisted, type Persisted, savePersisted } from "./persistence";
 
 /**
  * Solid signal-based store wrapping the pure core reducer. We deliberately use
