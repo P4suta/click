@@ -114,8 +114,28 @@ jobs:
           VITE_BASE_PATH: /click/
         run: bun run build
       - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v4
+      # Inline what `actions/upload-pages-artifact@v4` does, because that
+      # composite action internally pins `actions/upload-artifact@v4.6.2`
+      # which still targets Node 20. Inlining lets us use upload-artifact@v7
+      # (Node 24 native) and eliminate the last Node 20 deprecation warning.
+      # Mirrors the upstream composite tar invocation verbatim so the
+      # resulting artifact is byte-equivalent for actions/deploy-pages.
+      - name: Archive Pages artifact
+        run: |
+          tar \
+            --dereference --hard-dereference \
+            --directory packages/web/dist \
+            -cvf "$RUNNER_TEMP/artifact.tar" \
+            --exclude=.git \
+            --exclude=.github \
+            --exclude=".[^/]*" \
+            .
+      - name: Upload Pages artifact
+        uses: actions/upload-artifact@v7
         with:
-          path: packages/web/dist
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
       - id: deployment
         uses: actions/deploy-pages@v5
