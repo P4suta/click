@@ -1,3 +1,4 @@
+import { TapTempo } from "@click/core";
 import type { Component } from "solid-js";
 import { BeatIndicator } from "./components/BeatIndicator";
 import { BpmControls } from "./components/BpmControls";
@@ -15,12 +16,20 @@ interface AppProps {
 
 export const App: Component<AppProps> = (props) => {
   const metronome = useMetronome(props.store);
+  // Single TapTempo instance shared between the on-screen TAP button and the
+  // global keyboard "T" shortcut so they feed one rolling window. Both routes
+  // funnel taps through `metronome.syncToTap` for phase alignment / count-in.
+  const tap = new TapTempo();
 
   const handleToggle = (): void => {
     void metronome.toggle();
   };
 
-  useKeyboard({ store: props.store, onToggle: handleToggle });
+  const handleTap = (bpm: number, tapTimeMs: number, tapCount: number): void => {
+    void metronome.syncToTap(bpm, tapTimeMs, tapCount);
+  };
+
+  useKeyboard({ store: props.store, tap, onToggle: handleToggle, onTap: handleTap });
 
   return (
     <main class="app" aria-label="Metronome">
@@ -47,7 +56,7 @@ export const App: Component<AppProps> = (props) => {
         onNudge={(delta) => props.store.dispatch({ type: "NUDGE_BPM", delta })}
       />
       <div class="app__row">
-        <TapTempoButton onTempo={(bpm) => props.store.dispatch({ type: "SET_BPM", bpm })} />
+        <TapTempoButton tap={tap} onTempo={handleTap} />
         <TimeSignaturePicker
           value={props.store.state().timeSignature}
           onChange={(signature) => props.store.dispatch({ type: "SET_TIME_SIGNATURE", signature })}

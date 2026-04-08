@@ -97,4 +97,54 @@ describe("WebAudioPort", () => {
     clock.advance(1000);
     expect(listener).not.toHaveBeenCalled();
   });
+
+  describe("anchored start/update (tap-tempo phase alignment)", () => {
+    it("start with options.anchorTime delays the first beat to the anchor time", async () => {
+      const listener = vi.fn();
+      port.setOnBeat(listener);
+      // Anchor 0.5 s in the future of the FakeClock (now = 0)
+      await port.start(PARAMS, { anchorTime: 0.5 });
+      clock.advance(400);
+      expect(listener).not.toHaveBeenCalled();
+      clock.advance(200); // crosses anchor + lookahead window
+      expect(listener).toHaveBeenCalled();
+      const firstEvent = listener.mock.calls[0]?.[0];
+      expect(firstEvent.time).toBe(0.5);
+    });
+
+    it("update with options.anchorTime re-anchors the next beat regardless of patternDirty", async () => {
+      const listener = vi.fn();
+      port.setOnBeat(listener);
+      await port.start(PARAMS);
+      clock.advance(1500);
+      const beforeCount = listener.mock.calls.length;
+      // Re-anchor with the SAME params (volume change only — patternDirty
+      // would normally return false for these). The anchorTime must still
+      // force a scheduler.updatePattern() call.
+      port.update({ ...PARAMS, volume: 0.6 }, { anchorTime: 1.8 });
+      clock.advance(400);
+      const newCalls = listener.mock.calls.slice(beforeCount);
+      expect(newCalls.length).toBeGreaterThan(0);
+      // The first beat after re-anchor must fire at exactly 1.8
+      expect(newCalls[0]?.[0].time).toBe(1.8);
+    });
+
+    it("update without anchorTime preserves the existing volume-only-no-reanchor behavior", async () => {
+      const listener = vi.fn();
+      port.setOnBeat(listener);
+      await port.start(PARAMS);
+      clock.advance(1000);
+      // Volume-only change with no anchor — should NOT re-anchor (regression)
+      expect(() => port.update({ ...PARAMS, volume: 0.6 })).not.toThrow();
+      clock.advance(2000);
+      // Beats should still fire at the original 0.5 s pulse cadence
+      const times = listener.mock.calls.map((c) => c[0].time);
+      // The pre-existing 120 BPM grid: 0, 0.5, 1.0, 1.5, 2.0, 2.5
+      expect(times).toContain(2.0);
+    });
+
+    it("rejects start with non-finite anchorTime via the scheduler precondition", async () => {
+      await expect(port.start(PARAMS, { anchorTime: Number.NaN })).rejects.toThrow();
+    });
+  });
 });

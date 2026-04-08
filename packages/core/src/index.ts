@@ -8,7 +8,7 @@ export {
   invariant,
   requires,
 } from "./contracts";
-export { Scheduler, type SchedulerConfig } from "./scheduler";
+export { type ScheduleOptions, Scheduler, type SchedulerConfig } from "./scheduler";
 export { TapTempo, type TapTempoConfig } from "./tap-tempo";
 export { initialState, reduce } from "./tempo-state";
 export type {

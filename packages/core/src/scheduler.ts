@@ -10,6 +10,26 @@ export interface SchedulerConfig {
   readonly scheduleAheadSec: number;
 }
 
+/**
+ * Per-call scheduling options. Currently carries an optional anchor time used
+ * by tap-tempo phase alignment to override the default measure anchor.
+ */
+export interface ScheduleOptions {
+  /**
+   * Absolute clock time (in seconds, same units as `Clock.now()`) at which
+   * the next emitted beat should fire.
+   *
+   * - When passed to `start()`, replaces the default `clock.now()` anchor.
+   * - When passed to `updatePattern()`, overrides the default
+   *   "preserve-current-phase" behavior, snapping the next beat to this time.
+   *
+   * Times in the past are accepted; the scheduler will attempt to catch up
+   * (bounded by `MAX_BEATS_PER_TICK`). Callers that want forward-only
+   * semantics should advance the anchor themselves before calling.
+   */
+  readonly anchorTime?: number;
+}
+
 type OnBeat = (event: BeatEvent) => void;
 
 /**
@@ -70,7 +90,7 @@ export class Scheduler {
     return this.running;
   }
 
-  start(pattern: BeatPattern, onBeat: OnBeat): void {
+  start(pattern: BeatPattern, onBeat: OnBeat, options?: ScheduleOptions): void {
     requires(
       pattern !== null && typeof pattern === "object",
       "Scheduler.start: pattern must be a non-null object",
@@ -84,12 +104,18 @@ export class Scheduler {
       "Scheduler.start: pattern.measureDurationSec must be a positive finite number",
     );
     requires(typeof onBeat === "function", "Scheduler.start: onBeat must be a function");
+    if (options?.anchorTime !== undefined) {
+      requires(
+        Number.isFinite(options.anchorTime),
+        "Scheduler.start: options.anchorTime must be a finite number",
+      );
+    }
     // Defend against double-start: cancel any pending lookahead before
     // re-arming to avoid leaking a parallel tick chain.
     this.cancelTimer?.();
     this.cancelTimer = null;
     this.currentPattern = pattern;
-    this.measureStartTime = this.clock.now();
+    this.measureStartTime = options?.anchorTime ?? this.clock.now();
     this.nextBeatIndex = 0;
     this.running = true;
     this.tick(onBeat);
@@ -105,13 +131,15 @@ export class Scheduler {
   }
 
   /**
-   * Replace the current pattern (e.g. on BPM change). The next beat to be
-   * emitted becomes beat 0 of a fresh measure under the new pattern, anchored
-   * at the time the next beat was already going to fire. This means BPM
-   * tweaks reset the measure position but preserve continuity at the next
-   * beat boundary.
+   * Replace the current pattern (e.g. on BPM change). By default, the next
+   * beat to be emitted becomes beat 0 of a fresh measure under the new
+   * pattern, anchored at the time the next beat was already going to fire —
+   * preserving phase continuity for smooth BPM tweaks.
+   *
+   * Pass `options.anchorTime` to override this and snap the next beat to an
+   * explicit absolute clock time (used by tap-tempo phase alignment).
    */
-  updatePattern(pattern: BeatPattern): void {
+  updatePattern(pattern: BeatPattern, options?: ScheduleOptions): void {
     requires(
       pattern !== null && typeof pattern === "object",
       "Scheduler.updatePattern: pattern must be a non-null object",
@@ -124,11 +152,20 @@ export class Scheduler {
       Number.isFinite(pattern.measureDurationSec) && pattern.measureDurationSec > 0,
       "Scheduler.updatePattern: pattern.measureDurationSec must be a positive finite number",
     );
+    if (options?.anchorTime !== undefined) {
+      requires(
+        Number.isFinite(options.anchorTime),
+        "Scheduler.updatePattern: options.anchorTime must be a finite number",
+      );
+    }
     if (!this.running) return;
-    const nextBeat = this.currentPattern.beats[this.nextBeatIndex] as BeatEvent;
-    const nextBeatAbsoluteTime = this.measureStartTime + nextBeat.time;
+    if (options?.anchorTime !== undefined) {
+      this.measureStartTime = options.anchorTime;
+    } else {
+      const nextBeat = this.currentPattern.beats[this.nextBeatIndex] as BeatEvent;
+      this.measureStartTime = this.measureStartTime + nextBeat.time;
+    }
     this.currentPattern = pattern;
-    this.measureStartTime = nextBeatAbsoluteTime;
     this.nextBeatIndex = 0;
     invariant(
       this.nextBeatIndex < this.currentPattern.beats.length,
