@@ -124,8 +124,8 @@ describe("TapTempo — clamping", () => {
   it("clamps absurdly fast taps to MAX_BPM", () => {
     const tt = new TapTempo();
     tt.tap(0);
-    // 50 ms → 1200 BPM, clamp to 300
-    expect(tt.tap(50)).toBe(300);
+    // 50 ms → 1200 BPM, clamp to MAX_BPM (999)
+    expect(tt.tap(50)).toBe(999);
   });
 
   it("very slow taps below MIN_BPM are reported as null (window resets)", () => {

@@ -27,7 +27,7 @@ export type Persisted = Pick<
 
 const VALID_SOUNDS = new Set<SoundId>(["click", "beep", "wood", "cowbell"]);
 const VALID_DENOMS = new Set([2, 4, 8, 16]);
-const VALID_SUBDIVISIONS = new Set([1, 2, 3, 4]);
+const VALID_SUBDIVISIONS = new Set([1, 2, 3, 4, 6, 8]);
 
 const isObject = (x: unknown): x is Record<string, unknown> => typeof x === "object" && x !== null;
 
