@@ -11,6 +11,9 @@ permissions:
 env:
   BUN_VERSION: 1.3.11
   GO_VERSION: "1.23"
+  # Opt into Node.js 24 for any JavaScript action still on Node 20.
+  # Will be forced on by default 2026-06-02; opting in early.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   build:
