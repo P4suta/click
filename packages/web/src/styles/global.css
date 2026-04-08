@@ -158,7 +158,10 @@ select {
   height: 14px;
   border-radius: var(--radius-full);
   background: var(--beat-off);
-  transition: background 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+  transition:
+    background 120ms ease,
+    box-shadow 120ms ease,
+    transform 80ms ease;
 }
 
 .beat-indicator__dot--downbeat {
@@ -186,7 +189,10 @@ select {
   display: grid;
   place-items: center;
   box-shadow: var(--shadow-2);
-  transition: transform 80ms ease, box-shadow 200ms ease, background 200ms ease;
+  transition:
+    transform 80ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
 }
 
 @media (max-width: 480px) {
@@ -291,7 +297,9 @@ select {
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: 0.1em;
-  transition: background 80ms ease, border-color 200ms ease;
+  transition:
+    background 80ms ease,
+    border-color 200ms ease;
 }
 
 .tap-tempo:hover {

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,16 +7,17 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "ignore": [
-      "node_modules",
-      "dist",
-      "coverage",
-      "**/*.tsbuildinfo",
-      "native/build",
-      "native/frontend/dist",
-      "packages/web/public/**",
-      "**/reports/mutation/**",
-      "**/.stryker-tmp/**"
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/coverage",
+      "!**/*.tsbuildinfo",
+      "!**/native/build",
+      "!**/native/frontend/dist",
+      "!**/packages/web/public",
+      "!**/reports/mutation",
+      "!**/.stryker-tmp"
     ]
   },
   "formatter": {
@@ -26,9 +27,7 @@
     "lineWidth": 100,
     "lineEnding": "lf"
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
@@ -66,7 +65,7 @@
   },
   "overrides": [
     {
-      "include": ["**/*.config.ts", "**/*.config.js", "**/main.tsx"],
+      "includes": ["**/*.config.ts", "**/*.config.js", "**/main.tsx"],
       "linter": {
         "rules": {
           "style": {
@@ -76,11 +75,21 @@
       }
     },
     {
-      "include": ["**/tests/**", "**/*.test.ts", "**/*.test.tsx"],
+      "includes": ["**/tests/**", "**/*.test.ts", "**/*.test.tsx"],
       "linter": {
         "rules": {
           "style": {
             "noNonNullAssertion": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/styles/global.css"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noImportantStyles": "off"
           }
         }
       }

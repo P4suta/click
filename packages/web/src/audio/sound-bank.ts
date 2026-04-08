@@ -1,4 +1,4 @@
-import { type SoundId, requires } from "@click/core";
+import { requires, type SoundId } from "@click/core";
 
 /**
  * Synthesized click sounds. Each sound is rendered to an OscillatorNode +

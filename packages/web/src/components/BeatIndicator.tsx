@@ -1,4 +1,4 @@
-import { type Component, Index, createMemo } from "solid-js";
+import { type Component, createMemo, Index } from "solid-js";
 
 interface BeatIndicatorProps {
   readonly numerator: number;

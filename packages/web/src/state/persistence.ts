@@ -1,12 +1,12 @@
 import {
+  ensures,
   MAX_BPM,
   MIN_BPM,
+  requires,
   type SoundId,
   type Subdivision,
   type TempoState,
   type TimeSignature,
-  ensures,
-  requires,
 } from "@click/core";
 
 const PERSISTED_KEYS = new Set([

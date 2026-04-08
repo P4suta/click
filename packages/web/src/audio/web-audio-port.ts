@@ -2,11 +2,11 @@ import {
   type BeatEvent,
   type BeatPattern,
   type Clock,
-  Scheduler,
-  type SoundId,
   ensures,
   generateBeatPattern,
   requires,
+  Scheduler,
+  type SoundId,
 } from "@click/core";
 import { RealClock } from "./real-clock";
 import { playClick } from "./sound-bank";

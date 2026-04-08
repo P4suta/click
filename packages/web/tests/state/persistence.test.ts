@@ -1,4 +1,4 @@
-import { MAX_BPM, MIN_BPM, type SoundId, type TempoState, initialState } from "@click/core";
+import { initialState, MAX_BPM, MIN_BPM, type SoundId, type TempoState } from "@click/core";
 import fc from "fast-check";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadPersisted, savePersisted } from "../../src/state/persistence";

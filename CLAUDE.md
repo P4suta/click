@@ -11,11 +11,11 @@ This file is the source of truth for how AI agents (Claude Code and similar) sho
 | Layer | Choice | Why |
 |---|---|---|
 | Runtime / PM | Bun ≥ 1.3 (workspaces) | Fastest installs, native TS, single tool |
-| Language | TypeScript 5.6+ strict | `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` |
-| Bundler | Vite 6 | Best DX, mature PWA plugin |
+| Language | TypeScript 6 strict | `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` |
+| Bundler | Vite 8 | Best DX, mature PWA plugin |
 | UI Framework | Solid 1.9 | Smallest bundle, fine-grained reactivity, no VDOM |
-| Lint / Format | Biome 1.9 | Single tool, 10-100× faster than ESLint+Prettier |
-| Tests | Vitest 2 + happy-dom + fast-check | Native ESM, fast, property tests |
+| Lint / Format | Biome 2.4 | Single tool, 10-100× faster than ESLint+Prettier |
+| Tests | Vitest 4 + happy-dom 20 + fast-check 4 | Native ESM, fast, property tests |
 | Coverage | @vitest/coverage-v8 | V8-native, 100% enforced for core |
 | Mutation testing | @stryker-mutator/core 9 + vitest-runner 9 | Quality of test suite — current core mutation score 90.89% |
 | Contracts | hand-rolled `contracts.ts` (zero deps) | `requires` / `ensures` / `invariant` with TS `asserts` predicates |

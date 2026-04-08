@@ -1,5 +1,5 @@
 import { MAX_BPM, MIN_BPM } from "@click/core";
-import { type Component, Show, createSignal } from "solid-js";
+import { type Component, createSignal, Show } from "solid-js";
 
 interface BpmDisplayProps {
   readonly bpm: number;

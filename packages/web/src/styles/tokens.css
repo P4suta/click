@@ -5,8 +5,8 @@
 
 :root {
   /* Typography */
-  --font-display: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas,
-    monospace;
+  --font-display:
+    ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
   --font-ui: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
 
   --type-bpm: clamp(5rem, 18vw, 11rem);

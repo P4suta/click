@@ -5,8 +5,10 @@
   "description": "A modern, offline-first music practice metronome",
   "license": "MIT",
   "type": "module",
-  "packageManager": "bun@1.3.10",
-  "workspaces": ["packages/*"],
+  "packageManager": "bun@1.3.11",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "bun --filter '@click/web' dev",
     "build": "bun --filter '@click/core' build && bun --filter '@click/web' build",
@@ -24,7 +26,7 @@
     "preview": "bun --filter '@click/web' preview"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "typescript": "5.6.3"
+    "@biomejs/biome": "2.4.10",
+    "typescript": "6.0.2"
   }
 }
