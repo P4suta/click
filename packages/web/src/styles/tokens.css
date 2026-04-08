@@ -1,0 +1,106 @@
+/*
+ * Design tokens — generated from /DESIGN.md.
+ * Do NOT introduce new tokens here without first updating DESIGN.md.
+ */
+
+:root {
+  /* Typography */
+  --font-display: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas,
+    monospace;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+
+  --type-bpm: clamp(5rem, 18vw, 11rem);
+  --type-bpm-unit: 1.25rem;
+  --type-h1: 1.75rem;
+  --type-h2: 1.25rem;
+  --type-body: 1rem;
+  --type-small: 0.875rem;
+  --type-mono: 1rem;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Breakpoints (used in JS only; CSS uses literals) */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+
+  /* Shadows */
+  --shadow-1: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-2: 0 4px 8px -2px rgb(0 0 0 / 0.4);
+  --shadow-3: 0 12px 24px -6px rgb(0 0 0 / 0.5);
+}
+
+/* Dark theme — default */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a0a0b;
+  --surface: #141416;
+  --surface-elevated: #1c1c20;
+  --border: #27272a;
+  --text-primary: #fafaf9;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --primary: #fb923c;
+  --primary-hover: #fdba74;
+  --beat-on: #fb923c;
+  --beat-accent: #fbbf24;
+  --beat-off: #3f3f46;
+  --danger: #f87171;
+  --success: #4ade80;
+}
+
+/* Light theme — when explicitly set */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --surface-elevated: #f5f5f4;
+  --border: #e7e5e4;
+  --text-primary: #0a0a0b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+  --primary: #f97316;
+  --primary-hover: #ea580c;
+  --beat-on: #f97316;
+  --beat-accent: #f59e0b;
+  --beat-off: #d4d4d8;
+  --danger: #ef4444;
+  --success: #22c55e;
+}
+
+/* Honor user's OS preference when no explicit theme is set */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --surface-elevated: #f5f5f4;
+    --border: #e7e5e4;
+    --text-primary: #0a0a0b;
+    --text-secondary: #52525b;
+    --text-muted: #a1a1aa;
+    --primary: #f97316;
+    --primary-hover: #ea580c;
+    --beat-on: #f97316;
+    --beat-accent: #f59e0b;
+    --beat-off: #d4d4d8;
+    --danger: #ef4444;
+    --success: #22c55e;
+  }
+}
