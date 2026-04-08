@@ -1,18 +1,16 @@
 version: 2
 updates:
+  # Dependabot can update GitHub Actions versions safely.
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
 
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-    groups:
-      core:
-        patterns: ["typescript", "@biomejs/biome", "vitest", "@vitest/*", "fast-check"]
-      web:
-        patterns: ["solid-js", "vite", "vite-plugin-*", "@solidjs/*", "happy-dom", "workbox-*"]
+  # The npm ecosystem is intentionally NOT enabled. Dependabot does not yet
+  # support Bun's bun.lock format (it only handles package-lock.json /
+  # yarn.lock / pnpm-lock.yaml), so any package.json bump it produces leaves
+  # the lockfile out of sync and breaks `bun install --frozen-lockfile` in
+  # CI. Track upstream support at https://github.com/dependabot/dependabot-core
+  # — re-enable here when bun.lock is supported, or switch to Renovate which
+  # already understands Bun lockfiles.
