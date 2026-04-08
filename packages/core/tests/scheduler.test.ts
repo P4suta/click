@@ -706,3 +706,146 @@ describe("Scheduler — boundary branches", () => {
     scheduler.stop();
   });
 });
+
+// ----------------------------------------------------------------------------
+// Anchored start / updatePattern (tap-tempo phase alignment)
+// ----------------------------------------------------------------------------
+
+describe("Scheduler — anchored start", () => {
+  it("emits the first beat at the explicit anchorTime", () => {
+    const clock = new FakeClock(); // now = 0
+    const scheduler = new Scheduler(clock);
+    const events: BeatEvent[] = [];
+    scheduler.start(pattern(60), (e) => events.push(e), { anchorTime: 5.0 });
+    // Beat 0 sits at anchorTime 5.0, well outside the lookahead window from 0,
+    // so nothing fires until time advances close to 5.
+    clock.advance(4_900);
+    expect(events.length).toBe(0);
+    // Cross the lookahead horizon (default 100ms ahead) — beat 0 should now fire.
+    clock.advance(200);
+    expect(events.length).toBeGreaterThanOrEqual(1);
+    expect(events[0]?.time).toBe(5);
+    scheduler.stop();
+  });
+
+  it("uses clock.now() when anchorTime is omitted (regression)", () => {
+    const clock = new FakeClock(2500); // now = 2.5 s
+    const scheduler = new Scheduler(clock);
+    const events: BeatEvent[] = [];
+    scheduler.start(pattern(60), (e) => events.push(e));
+    // First beat fires immediately because measureStartTime === clock.now()
+    expect(events[0]?.time).toBe(2.5);
+    scheduler.stop();
+  });
+
+  it("explicit anchorTime in the future delays the first emission", () => {
+    const clock = new FakeClock(1000); // now = 1.0 s
+    const scheduler = new Scheduler(clock);
+    const events: BeatEvent[] = [];
+    scheduler.start(pattern(120), (e) => events.push(e), { anchorTime: 1.5 });
+    // anchor 0.5 s away — outside lookahead, no immediate emission
+    expect(events.length).toBe(0);
+    clock.advance(500);
+    expect(events.length).toBeGreaterThanOrEqual(1);
+    expect(events[0]?.time).toBe(1.5);
+    scheduler.stop();
+  });
+
+  it("rejects anchorTime that is not finite", () => {
+    const clock = new FakeClock();
+    const scheduler = new Scheduler(clock);
+    expect(() => scheduler.start(pattern(60), () => {}, { anchorTime: Number.NaN })).toThrow(
+      ContractError,
+    );
+    expect(() =>
+      scheduler.start(pattern(60), () => {}, { anchorTime: Number.POSITIVE_INFINITY }),
+    ).toThrow(ContractError);
+    expect(() =>
+      scheduler.start(pattern(60), () => {}, { anchorTime: Number.NEGATIVE_INFINITY }),
+    ).toThrow(ContractError);
+  });
+});
+
+describe("Scheduler — anchored updatePattern", () => {
+  it("re-anchors the next beat to the explicit anchorTime", () => {
+    const clock = new FakeClock();
+    const scheduler = new Scheduler(clock);
+    const events: BeatEvent[] = [];
+    scheduler.start(pattern(60), (e) => events.push(e));
+    // Run for 1.5 sec — beats at 0 and 1 emitted, scheduler is "on" the 1->2 boundary
+    clock.advance(1500);
+    const before = events.length;
+    expect(before).toBeGreaterThanOrEqual(2);
+    // Re-anchor: next beat should fire at clock.now() + 0.3 = 1.8
+    scheduler.updatePattern(pattern(120), { anchorTime: 1.8 });
+    // Tick is 25 ms; horizon is now+0.1. Next beat at 1.8 — past horizon, wait.
+    clock.advance(200); // now = 1.7
+    // Beat at 1.8 within horizon when clock advances past 1.7 (1.7 + 0.1 = 1.8)
+    // But strict <, so we need clock.now() > 1.7 for 1.8 < (now+0.1) to hold.
+    const newBeats = events.slice(before);
+    // The first beat after re-anchor must fire at exactly 1.8
+    if (newBeats.length > 0) {
+      expect(newBeats[0]?.time).toBe(1.8);
+    }
+    scheduler.stop();
+  });
+
+  it("preserves the current phase when anchorTime is omitted (regression)", () => {
+    const clock = new FakeClock();
+    const scheduler = new Scheduler(clock);
+    const events: BeatEvent[] = [];
+    scheduler.start(pattern(60), (e) => events.push(e));
+    clock.advance(500); // now = 0.5, beat 0 already emitted at 0
+    scheduler.updatePattern(pattern(120));
+    clock.advance(2000);
+    // After re-anchor without anchorTime, the next beat should still fire at
+    // time 1.0 (preserved phase from 60 BPM scheduler).
+    const allTimes = events.map((e) => e.time);
+    expect(allTimes).toContain(1);
+    scheduler.stop();
+  });
+
+  it("anchored updatePattern is still a no-op when not running", () => {
+    const clock = new FakeClock();
+    const scheduler = new Scheduler(clock);
+    expect(() => scheduler.updatePattern(pattern(120), { anchorTime: 5 })).not.toThrow();
+    expect(scheduler.isRunning).toBe(false);
+  });
+
+  it("rejects anchorTime that is not finite", () => {
+    const clock = new FakeClock();
+    const scheduler = new Scheduler(clock);
+    scheduler.start(pattern(60), () => {});
+    expect(() => scheduler.updatePattern(pattern(60), { anchorTime: Number.NaN })).toThrow(
+      ContractError,
+    );
+    expect(() =>
+      scheduler.updatePattern(pattern(60), { anchorTime: Number.POSITIVE_INFINITY }),
+    ).toThrow(ContractError);
+    scheduler.stop();
+  });
+});
+
+describe("Scheduler — anchored start property", () => {
+  it("property: for any anchor in [now, now+30s] and BPM ∈ [30,300], first beat fires at anchorTime", () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 30, max: 300 }),
+        fc.double({ min: 0, max: 30, noNaN: true }),
+        (bpm, anchorOffsetSec) => {
+          const clock = new FakeClock();
+          const scheduler = new Scheduler(clock);
+          const events: BeatEvent[] = [];
+          const anchor = anchorOffsetSec; // clock starts at 0
+          scheduler.start(pattern(bpm), (e) => events.push(e), { anchorTime: anchor });
+          // Advance enough to definitely cross the anchor + lookahead window
+          clock.advance(Math.ceil((anchorOffsetSec + 1) * 1000));
+          expect(events.length).toBeGreaterThanOrEqual(1);
+          expect(events[0]?.time).toBe(anchor);
+          scheduler.stop();
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
+});

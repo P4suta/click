@@ -41,4 +41,32 @@ describe("TapTempoButton", () => {
     // hint span is removed when null — verify by absence of any number text
     expect(btn.textContent).toBe("TAP");
   });
+
+  it("calls onTempo with (bpm, tapTimeMs, tapCount) on the second tap", () => {
+    const onTempo = vi.fn();
+    render(() => <TapTempoButton onTempo={onTempo} />);
+    const btn = screen.getByLabelText("Tap tempo");
+    fireEvent.click(btn); // tap 1: returns null, no call
+    fireEvent.click(btn); // tap 2: returns BPM, single call
+    expect(onTempo).toHaveBeenCalledOnce();
+    const call = onTempo.mock.calls[0];
+    expect(call).toBeDefined();
+    const [bpm, tapTimeMs, tapCount] = call as [number, number, number];
+    expect(typeof bpm).toBe("number");
+    expect(Number.isFinite(bpm)).toBe(true);
+    expect(typeof tapTimeMs).toBe("number");
+    expect(Number.isFinite(tapTimeMs)).toBe(true);
+    expect(tapCount).toBe(2);
+  });
+
+  it("tapCount increments across consecutive taps within the rolling window", () => {
+    const onTempo = vi.fn();
+    render(() => <TapTempoButton onTempo={onTempo} />);
+    const btn = screen.getByLabelText("Tap tempo");
+    for (let i = 0; i < 5; i++) fireEvent.click(btn);
+    // 4 calls (taps 2..5), tapCount progression 2,3,4,5
+    expect(onTempo).toHaveBeenCalledTimes(4);
+    const counts = onTempo.mock.calls.map((c) => (c as [number, number, number])[2]);
+    expect(counts).toEqual([2, 3, 4, 5]);
+  });
 });

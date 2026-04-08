@@ -5,6 +5,7 @@ import {
   ensures,
   generateBeatPattern,
   requires,
+  type ScheduleOptions,
   Scheduler,
   type SoundId,
 } from "@click/core";
@@ -117,7 +118,7 @@ export class WebAudioPort {
     this.onBeat = listener;
   }
 
-  async start(params: MetronomeParams): Promise<void> {
+  async start(params: MetronomeParams, options?: ScheduleOptions): Promise<void> {
     validateMetronomeParams(params, "WebAudioPort.start");
     if (this.starting || this.scheduler.isRunning) return;
     this.starting = true;
@@ -129,7 +130,7 @@ export class WebAudioPort {
       const master = this.master;
       if (master) master.gain.value = clampVolume(params.volume);
       const pattern = this.toPattern(params);
-      this.scheduler.start(pattern, (event) => this.handleBeat(event));
+      this.scheduler.start(pattern, (event) => this.handleBeat(event), options);
       ensures(
         this.scheduler.isRunning,
         "WebAudioPort.start: scheduler must be running after start completes",
@@ -153,7 +154,7 @@ export class WebAudioPort {
   }
 
   /** Apply parameter changes (BPM, accents, signature) without stopping. */
-  update(params: MetronomeParams): void {
+  update(params: MetronomeParams, options?: ScheduleOptions): void {
     validateMetronomeParams(params, "WebAudioPort.update");
     if (!this.scheduler.isRunning) {
       this.currentParams = params;
@@ -164,9 +165,13 @@ export class WebAudioPort {
       this.master.gain.value = clampVolume(params.volume);
     }
     this.currentParams = params;
-    // Only re-synthesize the pattern if pattern-affecting parameters changed.
-    // Volume and sound updates do not require re-anchoring the scheduler.
-    if (!prev || patternDirty(prev, params)) {
+    // When an explicit anchor is supplied (tap-tempo phase realign), always
+    // re-anchor the scheduler regardless of pattern equality. Otherwise only
+    // re-synthesize when pattern-affecting parameters changed — volume and
+    // sound updates do not require re-anchoring.
+    if (options?.anchorTime !== undefined) {
+      this.scheduler.updatePattern(this.toPattern(params), options);
+    } else if (!prev || patternDirty(prev, params)) {
       this.scheduler.updatePattern(this.toPattern(params));
     }
   }

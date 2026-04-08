@@ -1,10 +1,16 @@
-import { TapTempo } from "@click/core";
+import type { TapTempo } from "@click/core";
 import { onCleanup, onMount } from "solid-js";
 import type { AppStore } from "../state/app-store";
 
 interface UseKeyboardArgs {
   readonly store: AppStore;
+  /** Shared TapTempo instance — must be the same one passed to TapTempoButton
+   *  so the keyboard and the on-screen button feed a single rolling window. */
+  readonly tap: TapTempo;
   readonly onToggle: () => void;
+  /** Called with the same shape as `TapTempoButton.onTempo` so callers can
+   *  route both input methods through `useMetronome.syncToTap`. */
+  readonly onTap: (bpm: number, tapTimeMs: number, tapCount: number) => void;
 }
 
 /**
@@ -18,8 +24,6 @@ interface UseKeyboardArgs {
  * BPM directly without triggering shortcuts.
  */
 export function useKeyboard(args: UseKeyboardArgs): void {
-  const tap = new TapTempo();
-
   const isEditing = (target: EventTarget | null): boolean => {
     if (!(target instanceof HTMLElement)) return false;
     const tag = target.tagName;
@@ -41,8 +45,9 @@ export function useKeyboard(args: UseKeyboardArgs): void {
       case "T": {
         if (event.repeat) return;
         event.preventDefault();
-        const bpm = tap.tap(performance.now());
-        if (bpm !== null) args.store.dispatch({ type: "SET_BPM", bpm });
+        const tapTimeMs = performance.now();
+        const bpm = args.tap.tap(tapTimeMs);
+        if (bpm !== null) args.onTap(bpm, tapTimeMs, args.tap.tapCount);
         return;
       }
       case "ArrowUp":
