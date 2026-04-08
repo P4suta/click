@@ -1,0 +1,9 @@
+[install]
+exact = true
+auto = "auto"
+
+[install.cache]
+disable = false
+
+[test]
+coverage = false

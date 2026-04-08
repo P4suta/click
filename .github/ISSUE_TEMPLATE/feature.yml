@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest an idea for click
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the user need or pain point.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This fits the project's "zero-backend, offline-first" philosophy
+        - label: This does not require new third-party dependencies
+        - label: This is consistent with `DESIGN.md`
