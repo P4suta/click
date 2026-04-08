@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": "Mutation testing config for @click/core. Reuses our existing vitest setup.",
+  "packageManager": "npm",
+  "testRunner": "vitest",
+  "vitest": {
+    "configFile": "vitest.config.ts"
+  },
+  "reporters": ["html", "clear-text", "progress", "json"],
+  "plugins": ["@stryker-mutator/vitest-runner"],
+  "coverageAnalysis": "perTest",
+  "mutate": ["src/**/*.ts", "!src/index.ts", "!src/types.ts", "!src/clock.ts", "!src/contracts.ts"],
+  "_mutator_comment": "StringLiteral is excluded because all string literals in src are contract messages (e.g. 'Scheduler: clock must not be null'). Mutating them to '' has no observable effect on program behaviour; killing those mutations would require asserting on error-message text, which is brittle. The only non-message literals ('click', 'ContractError', etc.) are covered by existing equality tests on the enum/name.",
+  "mutator": {
+    "excludedMutations": ["StringLiteral"]
+  },
+  "thresholds": {
+    "high": 90,
+    "low": 80,
+    "break": 70
+  },
+  "timeoutMS": 30000,
+  "concurrency": 4,
+  "tempDirName": ".stryker-tmp",
+  "ignorePatterns": ["dist", "node_modules", "coverage", ".stryker-tmp"]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@click/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@click/core": "workspace:*",
+    "solid-js": "1.9.3"
+  },
+  "devDependencies": {
+    "@solidjs/testing-library": "0.8.10",
+    "@testing-library/jest-dom": "6.6.3",
+    "@types/node": "22.10.5",
+    "@vitest/coverage-v8": "2.1.8",
+    "fast-check": "3.23.2",
+    "happy-dom": "15.11.7",
+    "vite": "5.4.21",
+    "vite-plugin-pwa": "0.21.1",
+    "vite-plugin-solid": "2.11.0",
+    "vitest": "2.1.8",
+    "workbox-window": "7.3.0"
+  }
+}

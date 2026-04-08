@@ -1,0 +1,361 @@
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--type-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  min-height: 100dvh;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  padding: var(--space-5) var(--space-4) max(env(safe-area-inset-bottom), var(--space-5));
+}
+
+#root {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--primary-hover);
+  outline-offset: 2px;
+}
+
+input,
+select {
+  font-family: inherit;
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== App layout ===== */
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  width: 100%;
+}
+
+.app__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.app__title {
+  font-size: var(--type-small);
+  color: var(--text-secondary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.app__controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  align-items: center;
+}
+
+.app__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ===== BpmDisplay ===== */
+.bpm-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.bpm-display__value,
+.bpm-display__input {
+  font-family: var(--font-display);
+  font-size: var(--type-bpm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  text-align: center;
+  width: 4ch;
+  padding: 0;
+}
+
+.bpm-display__input:focus {
+  outline: none;
+  color: var(--primary);
+}
+
+.bpm-display__unit {
+  font-family: var(--font-ui);
+  font-size: var(--type-bpm-unit);
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ===== BeatIndicator ===== */
+.beat-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 24px;
+}
+
+.beat-indicator__dot {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  background: var(--beat-off);
+  transition: background 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+}
+
+.beat-indicator__dot--downbeat {
+  width: 20px;
+  height: 20px;
+}
+
+.beat-indicator__dot--active {
+  background: var(--beat-on);
+  box-shadow: 0 0 16px var(--beat-on);
+}
+
+.beat-indicator__dot--accent.beat-indicator__dot--active {
+  background: var(--beat-accent);
+  box-shadow: 0 0 18px var(--beat-accent);
+}
+
+/* ===== PlayButton ===== */
+.play-button {
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  color: var(--bg);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-2);
+  transition: transform 80ms ease, box-shadow 200ms ease, background 200ms ease;
+}
+
+@media (max-width: 480px) {
+  .play-button {
+    width: 96px;
+    height: 96px;
+  }
+}
+
+.play-button:hover {
+  background: var(--primary-hover);
+  box-shadow: var(--shadow-3);
+}
+
+.play-button--pulsing {
+  transform: scale(1.04);
+}
+
+.play-button__icon {
+  width: 32px;
+  height: 32px;
+  fill: currentColor;
+}
+
+/* ===== BpmControls ===== */
+.bpm-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 420px;
+}
+
+.bpm-controls__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.bpm-controls__nudge {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  font-size: var(--type-h2);
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.bpm-controls__nudge:hover {
+  background: var(--surface-elevated);
+}
+
+.bpm-controls__slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  outline: none;
+}
+
+.bpm-controls__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  background: var(--primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  border: none;
+}
+
+.bpm-controls__slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: var(--primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  border: none;
+}
+
+/* ===== TapTempoButton ===== */
+.tap-tempo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: 120px;
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  transition: background 80ms ease, border-color 200ms ease;
+}
+
+.tap-tempo:hover {
+  background: var(--surface-elevated);
+}
+
+.tap-tempo--flash {
+  background: var(--primary);
+  color: var(--bg);
+  border-color: var(--primary);
+}
+
+.tap-tempo__hint {
+  font-family: var(--font-display);
+  font-size: var(--type-small);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== TimeSignaturePicker ===== */
+.time-sig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-h2);
+  line-height: 1;
+  gap: 2px;
+}
+
+.time-sig:hover {
+  background: var(--surface-elevated);
+}
+
+.time-sig__num,
+.time-sig__den {
+  display: block;
+}
+
+.time-sig__den {
+  border-top: 1px solid currentColor;
+  padding-top: 1px;
+}
+
+.app__footer {
+  font-size: var(--type-small);
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: var(--space-5);
+}
+
+.app__footer kbd {
+  font-family: var(--font-display);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+  margin: 0 2px;
+}

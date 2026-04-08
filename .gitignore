@@ -48,6 +48,6 @@ native/frontend/dist/
 .env.*.local
 
 # Stryker
-.stryker-tmp/
-reports/mutation/
-stryker.log
+**/.stryker-tmp/
+**/reports/mutation/
+**/stryker.log

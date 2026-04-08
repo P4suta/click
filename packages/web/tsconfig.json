@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "noEmit": true,
+    "types": ["vite/client", "vitest/globals", "node", "@testing-library/jest-dom"]
+  },
+  "include": ["src/**/*", "tests/**/*", "vite.config.ts", "vitest.config.ts"],
+  "references": [{ "path": "../core" }]
+}
