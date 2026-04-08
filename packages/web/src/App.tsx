@@ -4,6 +4,7 @@ import { BeatIndicator } from "./components/BeatIndicator";
 import { BpmControls } from "./components/BpmControls";
 import { BpmDisplay } from "./components/BpmDisplay";
 import { PlayButton } from "./components/PlayButton";
+import { SubdivisionPicker } from "./components/SubdivisionPicker";
 import { TapTempoButton } from "./components/TapTempoButton";
 import { TimeSignaturePicker } from "./components/TimeSignaturePicker";
 import { useKeyboard } from "./hooks/use-keyboard";
@@ -60,6 +61,10 @@ export const App: Component<AppProps> = (props) => {
         <TimeSignaturePicker
           value={props.store.state().timeSignature}
           onChange={(signature) => props.store.dispatch({ type: "SET_TIME_SIGNATURE", signature })}
+        />
+        <SubdivisionPicker
+          value={props.store.state().subdivision}
+          onChange={(subdivision) => props.store.dispatch({ type: "SET_SUBDIVISION", subdivision })}
         />
       </div>
       <footer class="app__footer">

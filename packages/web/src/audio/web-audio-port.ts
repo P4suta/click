@@ -38,8 +38,10 @@ const validateMetronomeParams = (params: MetronomeParams, label: string): void =
     params.subdivision === 1 ||
       params.subdivision === 2 ||
       params.subdivision === 3 ||
-      params.subdivision === 4,
-    `${label}: params.subdivision must be one of 1, 2, 3, 4`,
+      params.subdivision === 4 ||
+      params.subdivision === 6 ||
+      params.subdivision === 8,
+    `${label}: params.subdivision must be one of 1, 2, 3, 4, 6, 8`,
   );
   requires(Number.isFinite(params.volume), `${label}: params.volume must be a finite number`);
   requires(typeof params.sound === "string", `${label}: params.sound must be a string`);
@@ -66,7 +68,7 @@ export interface MetronomeParams {
   readonly bpm: number;
   readonly timeSignature: { readonly numerator: number; readonly denominator: 2 | 4 | 8 | 16 };
   readonly accentPattern: readonly boolean[];
-  readonly subdivision: 1 | 2 | 3 | 4;
+  readonly subdivision: 1 | 2 | 3 | 4 | 6 | 8;
   readonly volume: number;
   readonly sound: SoundId;
 }

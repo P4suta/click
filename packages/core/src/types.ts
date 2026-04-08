@@ -8,8 +8,16 @@ export interface TimeSignature {
   readonly denominator: 2 | 4 | 8 | 16;
 }
 
-/** Subdivision of each beat. 1 = no subdivision, 2 = eighths, 3 = triplets, 4 = sixteenths. */
-export type Subdivision = 1 | 2 | 3 | 4;
+/**
+ * Subdivision of each beat:
+ *   1 = no subdivision (the beat itself)
+ *   2 = eighths
+ *   3 = triplets
+ *   4 = sixteenths
+ *   6 = sextuplets
+ *   8 = thirty-seconds
+ */
+export type Subdivision = 1 | 2 | 3 | 4 | 6 | 8;
 
 /** Identifier of a synthesized click sound. */
 export type SoundId = "click" | "beep" | "wood" | "cowbell";

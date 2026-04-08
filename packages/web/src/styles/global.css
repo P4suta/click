@@ -323,10 +323,9 @@ select {
 .time-sig {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   width: 64px;
-  height: 64px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -335,21 +334,66 @@ select {
   font-variant-numeric: tabular-nums;
   font-size: var(--type-h2);
   line-height: 1;
-  gap: 2px;
-}
-
-.time-sig:hover {
-  background: var(--surface-elevated);
+  overflow: hidden;
 }
 
 .time-sig__num,
 .time-sig__den {
   display: block;
+  width: 100%;
+  min-height: 40px;
+  padding: var(--space-2) 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: background 80ms ease;
+}
+
+.time-sig__num:hover,
+.time-sig__den:hover {
+  background: var(--surface-elevated);
 }
 
 .time-sig__den {
-  border-top: 1px solid currentColor;
-  padding-top: 1px;
+  border-top: 1px solid var(--border);
+}
+
+/* ===== SubdivisionPicker ===== */
+.subdivision {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: 64px;
+  min-height: 64px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-h2);
+  line-height: 1;
+  cursor: pointer;
+  transition: background 80ms ease;
+}
+
+.subdivision:hover {
+  background: var(--surface-elevated);
+}
+
+.subdivision__label {
+  color: var(--text-secondary);
+}
+
+.subdivision__value {
+  color: var(--text-primary);
 }
 
 .app__footer {

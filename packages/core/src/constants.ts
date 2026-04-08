@@ -1,7 +1,7 @@
 import type { Subdivision, TimeSignature } from "./types";
 
 export const MIN_BPM = 30;
-export const MAX_BPM = 300;
+export const MAX_BPM = 999;
 export const DEFAULT_BPM = 120;
 
 export const DEFAULT_TIME_SIGNATURE: TimeSignature = { numerator: 4, denominator: 4 };

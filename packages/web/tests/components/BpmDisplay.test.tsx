@@ -29,9 +29,9 @@ describe("BpmDisplay", () => {
     render(() => <BpmDisplay bpm={120} onChange={onChange} />);
     fireEvent.click(screen.getByLabelText(/BPM 120/i));
     const input = screen.getByLabelText("BPM");
-    fireEvent.input(input, { target: { value: "9999" } });
+    fireEvent.input(input, { target: { value: "99999" } });
     fireEvent.blur(input);
-    expect(onChange).toHaveBeenCalledWith(300);
+    expect(onChange).toHaveBeenCalledWith(999);
   });
 
   it("commits on Enter", () => {
